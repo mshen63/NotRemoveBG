@@ -1,0 +1,101 @@
+<!doctype html>
+<title>!RemoveBG</title>
+<h2>Select an image and mode to upload and display</h2>
+
+<p>
+	{% with messages = get_flashed_messages() %}
+	  {% if messages %}
+		<ul>
+		{% for message in messages %}
+		  <li>{{ message }}</li>
+		{% endfor %}
+		</ul>
+	  {% endif %}
+	{% endwith %}
+</p>
+
+<!--     # [original, final, checker, white, black] -->
+{% if base64_img_crop_list %}
+	<div class = "img_window">
+		<p class = "response_msg">{{message}}</p>
+		{% for pic in base64_img_crop_list.values() %}
+		<div class = "images">
+			<img id = "crop_orig" src="data:image/PNG;base64,{{pic[0]|safe}}">
+			<img id = "crop_final" src="data:image/PNG;base64,{{pic[2]|safe}}">
+		</div>
+		{% endfor %}
+		<!-- [final, crop_orig, crop_final, crop_checker, crop_white, crop_black] -->
+		<div>
+			<form action = "">
+				<p>Select Background Mode</p>
+				<input type = "radio" id ="transparent" name = "mode" value = "transparent" checked onclick = "swapLink(2,{{base64_img_crop_list}})">
+				<label for = "transparent">Transparent</label><br>
+
+				<input type = "radio" id ="black" name = "mode" value = "black" onclick = "swapLink(4,{{base64_img_crop_list}})">
+				<label for = "black">Black</label><br>
+
+				<input type = "radio" id ="white" name = "mode" value = "white" onclick = "swapLink(3,{{base64_img_crop_list}})">
+				<label for = "white">White</label><br>
+			</form>
+		</div>
+
+
+		
+
+
+		
+	
+	</div>
+
+	<form method="post" action="/" enctype="multipart/form-data">
+		<dl>
+			<p>
+				<input type="file" name="file" autocomplete="off" required>
+			</p>
+		</dl>
+	
+		<p>
+			<input type="submit" value="Submit">
+			<button type="button" onclick = "handleDownload({{base64_img}})">Download</button>
+		</p>
+	</form>
+
+{%else %}
+<form method="post" action="/" enctype="multipart/form-data">
+    <dl>
+		<p>
+			<input type="file" name="file" autocomplete="off" required>
+		</p>
+    </dl>
+
+    <p>
+		<input type="submit" value="Submit">
+		
+	</p>
+</form>
+{% endif %}
+
+<!--     # [original, final, checker, white, black] -->
+<script type = "text/javascript">
+	var x=1;
+	function handleDownload(base64_img){
+		
+		for (var key in base64_img){
+			var a = document.createElement("a")
+			a.href = "data:image/PNG;base64,"+base64_img[key][x]
+			a.download = key.split(".")[0]+"_edited"+".png"
+			a.click()
+			
+		}
+	}
+		
+	function swapLink(mode, base64_img_crop_list) {
+		image = document.getElementById("crop_final")
+		for (var key in base64_img_crop_list){
+			image.src = "data:image/PNG;base64,"+base64_img_crop_list[key][mode]
+		}
+		x = mode+1
+		
+	}
+</script>
+<link rel = "stylesheet" href = "{{ url_for('static', filename = 'upload.css')}}">
